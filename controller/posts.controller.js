@@ -3,9 +3,7 @@ const pool = require("../database/index")
 
 
 
-// const postsController =  {
-module.exports = () => {
-    return {
+const postsController =  {
         getAll: async (req, res) => {
             try {
                 // const result = await pool.query("select posts.*,p.name,p.lastname,p.avatar from posts posts RIGHT JOIN profile p ON posts.uid = p.uid order by create_at DESC")
@@ -119,6 +117,5 @@ module.exports = () => {
         }
     
     }
-}
 
-// module.exports = postsController
+module.exports = postsController

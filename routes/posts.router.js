@@ -1,31 +1,10 @@
 const express = require("express")
 const router = express.Router()
-const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const aws = require('aws-sdk');
+const multer = require('multer');
 const multerS3 = require('multer-s3');
-
-// const uploadDirectory = '/uploads';
-
-// // Check if the upload directory exists; if not, create it
-// // if (!fs.existsSync(uploadDirectory)) {
-// //   fs.mkdirSync(uploadDirectory);
-// // }
-
-// // Define the storage for multer
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, uploadDirectory);
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   },
-// });
-
-// const upload = multer({ storage: storage });
-
-// Use the `upload` middleware with your routes
 
 aws.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -48,6 +27,7 @@ const upload = multer({
     }
   })
 });
+
 
 const postsController = require("../controller/posts.controller")
 router.get("/", postsController.getAll)
