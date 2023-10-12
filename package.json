@@ -5,6 +5,7 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.1.1",
     "aws-sdk": "^2.895.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
