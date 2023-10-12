@@ -71,7 +71,7 @@ const postsController =  {
         
               res.json({
                 status: 'success',
-                message: 'Post created with images',
+                message: 'File uploaded successfully', url: req.file.location
               });
               console.log(res.json)
             } catch (error) {
