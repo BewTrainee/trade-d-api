@@ -31,7 +31,7 @@ const postsController = require("../controller/posts.controller")
 router.get("/", postsController.getAll)
 router.get("/:id", postsController.getById)
 router.get("/user_PTC/:id", postsController.getByUid)
-router.post("/create",upload.array('images'), postsController.create)
+router.put("/create",upload.array('images'), postsController.create)
 router.put("/:id", postsController.update)
 router.delete("/:id", postsController.delete)
 
