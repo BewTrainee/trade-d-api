@@ -18,7 +18,7 @@ const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: 'trade-d-bucket',
+    bucket: process.env.BUCKET_NAME,
     acl: 'public-read', // Your S3 bucket permissions
     key: function (req, file, cb) {
       cb(null, Date.now().toString() + path.extname(file.originalname))

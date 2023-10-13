@@ -37,7 +37,7 @@ server.listen(PORT, () => {
 })
 
 io.on("connection", (socket) => {
-    //console.log("A user connected");
+    console.log("A user connected");
 
     socket.on("chat message", (msg) => {
       // Save the message to the database if needed
@@ -66,6 +66,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-      //console.log("A user disconnected");
+      console.log("A user disconnected");
     });
   });
