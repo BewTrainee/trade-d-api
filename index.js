@@ -66,25 +66,26 @@ io.on("connection", (socket) => {
             message_text: msg.message_text,
             send_at: new Date(),
         };
-  
+
         const { chat_id, sender_uid, message_text, send_at } = message;
         const query =
             "INSERT INTO messages (chat_id, sender_uid, message_text, send_at) VALUES (?, ?, ?, ?)";
         const values = [chat_id, sender_uid, message_text, send_at];
-  
-        try {
-            connection.query(query, values);
-            console.log("Message stored in the database:", results);
-  
-            // Emit a success event back to the client
-            socket.emit("chat message success", { message: "Message stored successfully" });
-        } catch (error) {
-            console.error("Error storing message in the database:", error);
-  
-            // Emit an error event back to the client
-            socket.emit("chat message error", { error: "Failed to store the message" });
-        }
-  
+
+        connection.query(query, values, (error, results) => {
+            if (error) {
+                console.error("Error storing message in the database:", error);
+
+                // Emit an error event back to the client
+                socket.emit("chat message error", { error: "Failed to store the message" });
+            } else {
+                console.log("Message stored in the database:", results);
+
+                // Emit a success event back to the client
+                socket.emit("chat message success", { message: "Message stored successfully" });
+            }
+        });
+
         io.emit("chat message", msg); // Broadcast the message to all connected clients
     });
     socket.on("disconnect", () => {
