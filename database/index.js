@@ -1,5 +1,6 @@
 const mysql = require('mysql2')
 
+
 const pool = mysql.createPool({
     host: process.env.DB_HOST, 
     user: process.env.DB_USERNAME, 
@@ -11,8 +12,13 @@ const pool = mysql.createPool({
 });
 
 pool.getConnection((err, conn) => {
-    if(err) console.log(err)
-    console.log("Connected successfully")
-})
+    if (err) {
+        console.error("Error connecting to the database:", err);
+    } else {
+        console.log("Connected to the database successfully");
+        conn.release(); // Release the connection
+    }
+});
+
 
 module.exports = pool.promise()
