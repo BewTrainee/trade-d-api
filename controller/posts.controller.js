@@ -1,5 +1,24 @@
-const path = require("path")
+const { S3Client, PutObjectCommand } = require ('@aws-sdk/client-s3')
+const sharp = require('sharp')
+const crypto = require('crypto')
 const pool = require("../database/index")
+
+
+
+const region = 'ap-southeast-1'
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+const bucketName = process.env.BUCKET_NAME2
+
+const s3Client = new S3Client({
+  region,
+  credentials:{
+    accessKeyId,
+    secretAccessKey
+  }
+})
+
+const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
 
 
 
@@ -49,38 +68,53 @@ const postsController =  {
         },
         create: async (req, res) => {
             try {
-              const { uid, content } = req.body;
-              const images = req.files; // Extract uploaded images from the request
-        
-              // Insert post data into the posts table
-              const [postRows, postFields] = await pool.query(
-                'INSERT INTO posts (uid, content, create_at) VALUES (?, ?, NOW())',
-                [uid, content]
-              );
-        
-              const postId = postRows.insertId;
-        
-              // Insert image paths into the images table
-              for (const image of images) {
-                const ImagePath = path.join('https://trade-d-bucket.s3.ap-southeast-1.amazonaws.com/' ,image.filename)
-                await pool.query(
-                  'INSERT INTO images (post_id, image_path) VALUES (?, ?)',
-                  [postId, ImagePath]
+                const { uid, content } = req.body;
+                const images = req.files; // Extract uploaded images from the request
+            
+                // Insert post data into the posts table
+                const [postRows] = await pool.query(
+                  'INSERT INTO posts (uid, content, create_at) VALUES (?, ?, NOW())',
+                  [uid, content]
                 );
+            
+                const postId = postRows.insertId;
+            
+                // Insert image paths into the images table
+                for (const image of images) {
+                  
+                  const fileBuffer = await sharp(image.buffer)
+                  .resize({height: 1920, width: 1080, fit: "contain"}).toBuffer()
+            
+                  const fileName = generateFileName()
+                  const imagePath = `https://trade-d-bucket.s3.ap-southeast-1.amazonaws.com/${fileName}`; // Adjust the URL as needed
+                  const uploadParams = {
+                    Bucket: bucketName,
+                    Body: fileBuffer,
+                    Key: fileName,
+                    ContentType: image.mimetype
+                  }
+            
+                  await s3Client.send(new PutObjectCommand(uploadParams))
+            
+                  await pool.query(
+                    'INSERT INTO images (post_id, image_path) VALUES (?, ?)',
+                    [postId, imagePath]
+                  );
+                }
+            
+                res.json({
+                  status: 'success',
+                  message: 'File uploaded successfully',
+                });
+                // res.json({ message: 'Images uploaded successfully', files: req.files });
+              } catch (error) {
+                console.log(error);
+                res.status(500).json({
+                  status: 'error',
+                  message: 'Error creating post with images',
+                  error: error.message, // Add the error message for debugging
+                });
               }
-        
-              res.json({
-                status: 'success',
-                message: 'File uploaded successfully', url: req.file.location
-              });
-              console.log(res.json)
-            } catch (error) {
-              console.log(error);
-              res.json({
-                status: 'error',
-                message: 'Error creating post with images',
-              });
-            }
           },
         
         update: async (req, res) => {
