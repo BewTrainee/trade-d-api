@@ -56,7 +56,7 @@ server.listen(PORT, () => {
 })
 
 io.on("connection", (socket) => {
-    console.log("A user connected");
+    // console.log("A user connected");
   
     socket.on("chat message", async (msg) => {
         // Save the message to the database if needed
@@ -66,6 +66,8 @@ io.on("connection", (socket) => {
             message_text: msg.message_text,
             send_at: new Date(),
         };
+
+        console.log(message)
 
         const { chat_id, sender_uid, message_text, send_at } = message;
         const query =
