@@ -1,0 +1,28 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.container {
+    display: flex;
+    width: 1920px;
+    height: 1080px;
+    background: #f96163;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+}
+h1 {
+    text-align: center;
+    color: white;
+    font-size: 94px;
+}
+h2 {
+    text-align: center;
+    color: white;
+    font-size: 46px;
+}
+h3 {
+    text-align: center;
+    color: white;
+    font-size: 36px;
+}
