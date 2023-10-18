@@ -38,6 +38,7 @@ server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
 
+//IO PART
 io.on("connection", (socket) => {
     console.log("A user connected");
   
@@ -67,20 +68,6 @@ io.on("connection", (socket) => {
             // Emit an error event back to the client
             socket.emit('chat message error', { error: 'Failed to store the message' });
           }
-
-        // connection.query(query, values, (error, results) => {
-        //     if (error) {
-        //         console.error("Error storing message in the database:", error);
-
-        //         // Emit an error event back to the client
-        //         socket.emit("chat message error", { error: "Failed to store the message" });
-        //     } else {
-        //         console.log("Message stored in the database:", results);
-
-        //         // Emit a success event back to the client
-        //         socket.emit("chat message success", { message: "Message stored successfully" });
-        //     }
-        // });
 
         io.emit("chat message", msg); // Broadcast the message to all connected clients
     });

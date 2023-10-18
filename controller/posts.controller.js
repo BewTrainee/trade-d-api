@@ -140,7 +140,7 @@ const postsController = {
 
         await pool.query(
           "INSERT INTO images (post_id, image_path) VALUES (?, ?)",
-          [postId, imagePath]
+          [postId, fileName]
         );
       }
 
