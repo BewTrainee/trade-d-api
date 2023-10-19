@@ -46,7 +46,7 @@ server.listen(PORT, () => {
 
 //IO PART
 io.on("connection", (socket) => {
-    console.log("A user connected");
+    // console.log("A user connected");
   
     socket.on("chat message", async (msg) => {
         // Save the message to the database if needed
@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
 
         try {
             var results = await pool.query(query, values);
-            console.log('Message stored in the database:', results[0]);
+            // console.log('Message stored in the database:', results[0]);
             // Emit a success event back to the client
             socket.emit('chat message success', { message: 'Message stored successfully' });
           } catch (err) {
@@ -78,6 +78,6 @@ io.on("connection", (socket) => {
         io.emit("chat message", msg); // Broadcast the message to all connected clients
     });
     socket.on("disconnect", () => {
-        console.log("A user disconnected");
+        // console.log("A user disconnected");
       });
   });
