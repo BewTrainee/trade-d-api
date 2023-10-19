@@ -1,49 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade-D-API</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        display: flex;
-        width: 1920px;
-        height: 1080px;
-        background: #f96163;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid;
-      }
-      h1 {
-        text-align: center;
-        color: white;
-        font-size: 94px;
-      }
-      h2 {
-        text-align: center;
-        color: white;
-        font-size: 46px;
-      }
-      h3 {
-        text-align: center;
-        color: white;
-        font-size: 36px;
-      }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        div {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* border: 2px solid; */
+            line-height:15px;
+            color: #FFF;
+            background-color: #f96163;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            /* color: #333; */
+        }
+
+        h2 {
+            font-size: 2rem;
+            /* color: #666; */
+        }
+
+        p {
+            font-size: 1.25rem;
+            /* color: #333; */
+        }
+
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="main">
-        <h1>Welcom To Trade-D-API</h1>
+</head>
+<body>
+    <div>
+        <h1>Welcome To Trade-D-API</h1>
         <h2>This is An API use for Trade-D App</h2>
-        <h3>Created By</h3>
-        <h3>Thanamongkon Sanawithonkit 62310022 Buu</h3>
-      </div>
+        <p>Created By</p>
+        <p>Thanamongkon Sanawithonkit 62310022 Buu</p>
     </div>
-  </body>
+</body>
 </html>
