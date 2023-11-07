@@ -81,3 +81,29 @@ io.on("connection", (socket) => {
         // console.log("A user disconnected");
       });
   });
+
+  function keepAlive() {
+    // Make an HTTP GET request to your own server or a specific URL to keep it active.
+    const options = {
+      hostname: 'trade-d-api.onrender.com', // Replace with your hosted app's URL
+      port: 443, // Default HTTPS port
+      path: '/', // The path to request, replace with the specific endpoint you want to hit
+      method: 'GET',
+    };
+  
+    const req = https.request(options, (res) => {
+      console.log(`Keep-alive request status code: ${res.statusCode}`);
+    });
+  
+    req.on('error', (error) => {
+      console.error(`Keep-alive request error: ${error}`);
+    });
+  
+    req.end();
+  }
+  
+  // Call the `keepAlive` function every 1 minute (60,000 milliseconds)
+  setInterval(keepAlive, 6000);
+  
+  // You can also call `keepAlive` immediately to make the first request.
+  keepAlive();
