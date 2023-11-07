@@ -2,6 +2,7 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 const http = require("http");
+const https = require('https');
 const path = require('path');
 const pool = require("./database/index");
 const server = http.createServer(app);
@@ -83,27 +84,27 @@ io.on("connection", (socket) => {
   });
 
   function keepAlive() {
-    // Make an HTTP GET request to your own server or a specific URL to keep it active.
     const options = {
-      hostname: 'trade-d-api.onrender.com', // Replace with your hosted app's URL
-      port: 10000, // Default HTTPS port
-      path: '/', // The path to request, replace with the specific endpoint you want to hit
+      hostname: 'trade-d-api.onrender.com',
+      port: 10000,
+      path: '/',
       method: 'GET',
     };
   
-    const req = http.request(options, (res) => {
+    const req = https.request(options, (res) => {
       console.log(`Keep-alive request status code: ${res.statusCode}`);
     });
   
     req.on('error', (error) => {
-      console.error(`Keep-alive request error: ${error}`);
+      console.error('Keep-alive request error:');
+      console.error(error);
     });
   
     req.end();
   }
   
-  // Call the `keepAlive` function every 1 minute (60,000 milliseconds)
-  setInterval(keepAlive, 6000);
+  setInterval(keepAlive, 60000);
+  
   
   // You can also call `keepAlive` immediately to make the first request.
   keepAlive();
