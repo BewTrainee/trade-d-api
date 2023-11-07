@@ -86,7 +86,7 @@ io.on("connection", (socket) => {
   function keepAlive() {
     const options = {
       hostname: 'trade-d-api.onrender.com',
-      port: 10000,
+      port: 443,
       path: '/',
       method: 'GET',
     };
