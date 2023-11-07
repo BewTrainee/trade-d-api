@@ -86,12 +86,12 @@ io.on("connection", (socket) => {
     // Make an HTTP GET request to your own server or a specific URL to keep it active.
     const options = {
       hostname: 'trade-d-api.onrender.com', // Replace with your hosted app's URL
-      port: 443, // Default HTTPS port
+      port: 10000, // Default HTTPS port
       path: '/', // The path to request, replace with the specific endpoint you want to hit
       method: 'GET',
     };
   
-    const req = https.request(options, (res) => {
+    const req = http.request(options, (res) => {
       console.log(`Keep-alive request status code: ${res.statusCode}`);
     });
   
