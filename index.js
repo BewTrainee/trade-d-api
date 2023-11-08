@@ -90,10 +90,10 @@ io.on("connection", (socket) => {
       path: '/',
       method: 'GET',
     };
-    https.request(options);
-    // const req = https.request(options, (res) => {
+
+    const req = https.request(options, (res) => {
       // console.log(`Keep-alive request status code: ${res.statusCode}`);
-    // });
+    });
   
     req.on('error', (error) => {
       console.error('Keep-alive request error:');
