@@ -1,19 +1,29 @@
-const pool = require("../database/index")
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const pool = require("../database/index");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const newUser = {
+    "email" : "test1@test.com",
+    "password": "123456", 
+    "name" : "NewDB User1",
+    "gender" : "male",
+    "phone" : "064-0081644",
+    "location" : "จันทบุรี เมืองจัน 22000"
+}
+
 
 const authController = {
     register: async (req, res) => {
         try {
-            const { email, password, name } = req.body
+            const { email, password, name, gender, phone, location } = req.body
             const [user, ] = await pool.query("select * from users where email = ?", [email])
             if (user[0]) return res.json({ error: "Email already exists!" })
             
 
             const hash = await bcrypt.hash(password, 10)
 
-            const sql = "insert into users (email, password, name) values (?, ?, ?)"
-            const [rows, fields] = await pool.query(sql, [email, hash, name])
+            const sql = "insert into users (email, password, name, gender, phone, location ) values (?, ?, ?, ?, ?, ?)"
+            const [rows, fields] = await pool.query(sql, [email, hash, name, gender, phone, location])
 
             if (rows.affectedRows) {
                 return res.json({ message: "Ok" })
@@ -28,55 +38,56 @@ const authController = {
             })
         }
     },
-    login: async (req, res) => {
-        try {
-            const { username, password } = req.body;
-            const last_ip = extractIPv4(req.ip);
-            
-            // Call your authentication procedure and get user data
-            const [user] = await pool.query("CALL Auth(?,?,?);", [username, password, last_ip]);
-            
-            if (!user[0]) {
-                return res.json({ error: "Invalid email or password!" });
-            }
-            // const has = await bcrypt.hash(password, 10)
-            // console.log(has)
-            // const { password: hash, uid, username } = has;
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const last_ip = extractIPv4(req.ip);
 
-            // Compare the provided password with the hashed password from the database
-            // const passwordMatch = await bcrypt.compare(password, hash);
-            const getPassword = await user[0]
-            const passwordMatch = await getPassword[0].password
-            // console.log(passwordMatch)
+      // Call your authentication procedure and get user data
+      const [user, ] = await pool.query("select * from users where email = ?", [email])
+      
 
-            if (passwordMatch) {
-                // Generate a JWT token for authentication (uncomment this section if needed)
-                // const accessToken = jwt.sign({ userId: id }, 'your-secret-key', { expiresIn: '1h' });
-                // return res.json({ 
-                //     accessToken,
-                //     data: { 
-                //         userId: uid,
-                //         username,
-                //         // email
-                //     }
-                // });
-                
-                return res.json(user[0])
-            } else {
-                return res.json({ error: "Invalid password!" });
-            }
-            return res.json(user[0])
-            
-        } catch (error) {
-            console.error(error);
-            res.json({ error: error.message });
-        }
-    },
-}
-function extractIPv4(ipWithPrefix) {
-    if(ipWithPrefix.startsWith('::ffff:')) {
-      return ipWithPrefix.replace('::ffff:','');
+      if (!user[0]) return res.json({ error: "Invalid email or password!" });
+
+      const { password: hash, user_id, name } = user[0];
+    //   console.log(hash)
+      const [userInfo, ] = await pool.query("CALL Auth(?,?,?);", [
+        email,
+        hash,
+        last_ip,
+      ]);
+
+      const check = await bcrypt.compare(password, hash);
+      if (check) {
+        const accessToken = jwt.sign({ userId: user_id }, "3812932sjad34&*@", {
+          expiresIn: "1h",
+        });
+        // return res.json({
+        //   accessToken,
+        //   data: {
+        //     userId: user_id,
+        //     name,
+        //     email,
+        //   },
+        // });
+        console.log("Success")
+        return res.json(userInfo[0])
+      }
+
+      return res.json({ error: "Wrong password!" })
+
+    } catch (error) {
+      console.error(error);
+      res.json({ error: error.message });
     }
-    return ipWithPrefix;
+  },
+};
+
+
+function extractIPv4(ipWithPrefix) {
+  if (ipWithPrefix.startsWith("::ffff:")) {
+    return ipWithPrefix.replace("::ffff:", "");
   }
-module.exports = authController
+  return ipWithPrefix;
+}
+module.exports = authController;

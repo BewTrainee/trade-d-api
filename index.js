@@ -52,18 +52,18 @@ io.on("connection", (socket) => {
     socket.on("chat message", async (msg) => {
         // Save the message to the database if needed
         const message = {
-            chat_id: msg.chat_id,
-            sender_uid: msg.sender_uid,
-            message_text: msg.message_text,
-            send_at: new Date(),
+            sender_id: msg.sender_uid,
+            receiver_id: msg.receiver_id,
+            message_text: msg.message,
+            timestamp: new Date(),
         };
 
         // console.log(message)
 
-        const { chat_id, sender_uid, message_text, send_at } = message;
+        const { receiver_id, sender_id, message_text, timestamp } = message;
         const query =
-            "INSERT INTO messages (chat_id, sender_uid, message_text, send_at) VALUES (?, ?, ?, ?)";
-        const values = [chat_id, sender_uid, message_text, send_at];
+            "INSERT INTO chats (sender_id, receiver_id, message_text, timestamp) VALUES (?, ?, ?, ?)";
+        const values = [sender_id, receiver_id, message_text, timestamp];
 
         try {
             var results = await pool.query(query, values);
@@ -75,7 +75,7 @@ io.on("connection", (socket) => {
             // Emit an error event back to the client
             socket.emit('chat message error', { error: 'Failed to store the message' });
           }
-
+          console.log(msg)
         io.emit("chat message", msg); // Broadcast the message to all connected clients
     });
     socket.on("disconnect", () => {

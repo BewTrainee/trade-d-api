@@ -4,7 +4,7 @@ const userController = {
     getById: async (req, res) => {
         try {
             const { id } = req.params
-            const result = await pool.query("select * from profile where uid = ?", [id])
+            const result = await pool.query("select * from users where user_id = ?", [id])
             // const post = await pool.query("SELECT p.post_id,p.content FROM posts p where post_id = ?",[id])
             // const images = await pool.query("SELECT i.image_id,i.image_path FROM images i where post_id = ?",[id])
             const user = result[0]

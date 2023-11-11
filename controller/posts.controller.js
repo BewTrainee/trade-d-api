@@ -33,13 +33,12 @@ const postsController = {
       // const result = await pool.query("select posts.*,p.name,p.lastname,p.avatar from posts posts RIGHT JOIN profile p ON posts.uid = p.uid order by create_at DESC")
       const result = await pool.query("call AllPostToCard();");
       const data = result[0];
-      // const posts = data[0]
       for (let image of data[0]) {
         image.imageUrl = await getSignedUrl(
           s3Client,
           new GetObjectCommand({
             Bucket: bucketName,
-            Key: image.image_path,
+            Key: image.image_key,
           }),
           { expiresIn: 36000 }
         );
@@ -56,11 +55,17 @@ const postsController = {
     try {
       const { id } = req.params;
       const result = await pool.query(
-        "SELECT p.post_id,p.content FROM posts p where post_id = ?",
+        "SELECT p.item_id,p.description,p.condition,p.category_id FROM items p where item_id = ?",
         [id]
       );
+      const categoryId = result[0][0]?.category_id;
+      console.log(categoryId)
+      const category = await pool.query(
+        `select * from categories where category_id=?`,
+        [categoryId]
+      );
       const images = await pool.query(
-        "SELECT i.image_id,i.image_path FROM images i where post_id = ?",
+        "SELECT i.image_id,i.image_key FROM images i where item_id = ?",
         [id]
       );
       data = result[0];
@@ -69,13 +74,14 @@ const postsController = {
           s3Client,
           new GetObjectCommand({
             Bucket: bucketName,
-            Key: image.image_path,
+            Key: image.image_key,
           }),
           { expiresIn: 36000 }
         );
       }
       res.json({
         data: result[0],
+        category: category[0][0],
         images: images[0],
       });
     } catch (error) {
@@ -95,7 +101,7 @@ const postsController = {
           s3Client,
           new GetObjectCommand({
             Bucket: bucketName,
-            Key: image.image_path,
+            Key: image.image_key,
           }),
           { expiresIn: 36000 }
         );
@@ -110,40 +116,40 @@ const postsController = {
   },
   create: async (req, res) => {
     try {
-      const { uid, content } = req.body;
+      const { uid, name, description, condition, category_id } = req.body;
       const images = req.files; // Extract uploaded images from the request
-
+      const create_at = new Date()
       // Insert post data into the posts table
+      // INSERT INTO `main_app`.`items` (`user_id`, `name`, `description`, `category_id`, `condition`, `create_at`) VALUES ('1', 'PostManItems', 'Postman is an API platform for building and using APIs. Postman simplifies each step of the API lifecycle and streamlines collaboration so you can create better APIs—faster.', '1', 'Find Me a Better One', '2023-11-10 21:28:43');
       const [postRows] = await pool.query(
-        "INSERT INTO posts (uid, content, create_at) VALUES (?, ?, NOW())",
-        [uid, content]
+        "INSERT INTO items (`user_id`, `name`, `description`, `category_id`, `condition`, `create_at`) VALUES (?, ?, ?, ?, ?, ?)",
+        [uid, name, description, category_id, condition, create_at]
       );
 
       const postId = postRows.insertId;
 
       // Insert image paths into the images table
-      for (const image of images) {
-        const fileBuffer = await sharp(image.buffer)
-          .resize({ height: 1920, width: 1080, fit: "contain" })
-          .toBuffer();
-
-        const fileName = generateFileName();
-        const imagePath = `https://trade-d-bucket.s3.ap-southeast-1.amazonaws.com/${fileName}`; // Adjust the URL as needed
-        const uploadParams = {
-          Bucket: bucketName,
-          Body: fileBuffer,
-          Key: fileName,
-          ContentType: image.mimetype,
-        };
-
-        await s3Client.send(new PutObjectCommand(uploadParams));
-
-        await pool.query(
-          "INSERT INTO images (post_id, image_path) VALUES (?, ?)",
-          [postId, fileName]
-        );
-      }
-
+      
+        for (const image of images) {
+          const fileBuffer = await sharp(image.buffer)
+            .resize({ height: 1920, width: 1080, fit: "contain" })
+            .toBuffer();
+  
+          const fileName = generateFileName();
+          const uploadParams = {
+            Bucket: bucketName,
+            Body: fileBuffer,
+            Key: fileName,
+            ContentType: image.mimetype,
+          };
+  
+          await s3Client.send(new PutObjectCommand(uploadParams));
+  
+          await pool.query(
+            "INSERT INTO images (item_id, image_key) VALUES (?, ?)",
+            [postId, fileName]
+          );
+        }
       res.json({
         status: "success",
         message: "File uploaded successfully",
@@ -163,7 +169,7 @@ const postsController = {
     try {
       const { content } = req.body;
       const { id } = req.params;
-      const sql = "update posts set content = ? where post_id = ?";
+      const sql = "update items set content = ? where item_id = ?";
       const [rows, fields] = await pool.query(sql, [content, id]);
       res.json({
         status: "success",
@@ -180,16 +186,15 @@ const postsController = {
     try {
       const { id } = req.params;
       const images = await pool.query(
-        "SELECT * FROM images where post_id = ?",
+        "SELECT * FROM images where item_id = ?",
         [id]
       );
 
       for (let image of images[0]) {
         const deleteParams = {
           Bucket: bucketName,
-          Key: image.image_path,
+          Key: image.image_key,
         };
-        // console.log(image.image_path)
         await s3Client.send(new DeleteObjectCommand(deleteParams));
       }
       await pool.query("CALL DeletePost(?);", [id]);
