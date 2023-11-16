@@ -414,6 +414,7 @@ const postsController = {
           profile:item.profile,
           item_name: item.item_name,
           description: item.description,
+          condition: item.condition,
           category_id: item.category_id,
           create_at: item.create_at,
           images: images,
