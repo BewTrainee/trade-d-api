@@ -2,7 +2,7 @@ const pool = require("../database/index");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const newUser = {
+const UserDataDummy = {
     "email" : "test1@test.com",
     "password": "123456", 
     "name" : "NewDB User1",
@@ -81,6 +81,31 @@ const authController = {
       res.json({ error: error.message });
     }
   },
+  ForgetPasswordEmailCheck: async (req, res) => {
+    try {
+      const  {email,phone}  = req.body
+      const result = await pool.query("select email from users where email = ? AND phone = ?", [email,phone])
+      res.json({ status: "success", email:result[0][0].email})
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  ChangePassword: async (req,res) => {
+    try {
+      const {password,email} = req.body
+      const hashPassword = await bcrypt.hash(password, 10)
+
+      await pool.query("UPDATE users SET password = ? WHERE email = ? ",[hashPassword,email])
+
+      res.json({ 
+        status: "success",
+        message:'Password changed'
+      })
+    } catch (error) {
+      console.error(error);
+      res.json({ error: error.message });
+    }
+  }
 };
 
 
