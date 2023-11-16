@@ -47,7 +47,10 @@ const authController = {
       const [user, ] = await pool.query("select * from users where email = ?", [email])
       
 
-      if (!user[0]) return res.json({ error: "Invalid email or password!" });
+      if (!user[0]) {
+        // User not found
+        return res.status(401).json({ error: "Invalid email or password!" });
+      }
 
       const { password: hash, user_id, name } = user[0];
     //   console.log(hash)
@@ -74,11 +77,11 @@ const authController = {
         return res.json(userInfo[0])
       }
 
-      return res.json({ error: "Wrong password!" })
+      return res.status(401).json({ error: "Wrong password!" });
 
     } catch (error) {
       console.error(error);
-      res.json({ error: error.message });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
   ForgetPasswordEmailCheck: async (req, res) => {
@@ -106,7 +109,7 @@ const authController = {
   
   ChangePassword: async (req,res) => {
     try {
-      const {password,email} = req.body
+      const {email,password} = req.body
       const hashPassword = await bcrypt.hash(password, 10)
 
       await pool.query("UPDATE users SET password = ? WHERE email = ? ",[hashPassword,email])
