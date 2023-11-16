@@ -371,15 +371,17 @@ const postsController = {
           i.description,
           i.category_id,
           i.create_at,
-          GROUP_CONCAT(img.image_id) AS image_ids,
-          GROUP_CONCAT(img.image_key) AS image_keys
+        GROUP_CONCAT(img.image_id) AS image_ids,
+        GROUP_CONCAT(img.image_key) AS image_keys
         FROM
           items AS i
         LEFT JOIN
           images AS img ON i.item_id = img.item_id
-        LEFT JOIN 
-	        users AS u ON i.user_id = u.user_id
+        LEFT JOIN
+          users AS u ON i.user_id = u.user_id
         GROUP BY
+          i.item_id
+        ORDER BY
           i.item_id DESC;
       `);
   
