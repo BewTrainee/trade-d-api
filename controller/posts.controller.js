@@ -382,7 +382,9 @@ const postsController = {
         GROUP BY
           i.item_id
         ORDER BY
-          i.item_id DESC;
+          i.item_id DESC
+          LIMIT 200
+        ;
       `);
   
       const data = await Promise.all(result[0].map(async (item) => {
