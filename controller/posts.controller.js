@@ -369,6 +369,7 @@ const postsController = {
           u.profile,
           i.name AS item_name,
           i.description,
+          i.condition,
           i.category_id,
           i.create_at,
         GROUP_CONCAT(img.image_id) AS image_ids,

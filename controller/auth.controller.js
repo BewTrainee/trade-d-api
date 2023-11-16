@@ -83,13 +83,27 @@ const authController = {
   },
   ForgetPasswordEmailCheck: async (req, res) => {
     try {
-      const  {email,phone}  = req.body
-      const result = await pool.query("select email from users where email = ? AND phone = ?", [email,phone])
-      res.json({ status: "success", email:result[0][0].email})
+      const { email, phone } = req.body;
+  
+      // Check if email and phone are provided
+      if (!email || !phone) {
+        return res.status(400).json({ status: "error", message: "Email and phone are required." });
+      }
+  
+      const result = await pool.query("SELECT email FROM users WHERE email = ? AND phone = ?", [email, phone]);
+  
+      // Check if the result array is not empty
+      if (result[0].length > 0) {
+        return res.json({ status: "success", email: result[0][0].email });
+      } else {
+        return res.status(404).json({ status: "error", message: "User not found." });
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error in ForgetPasswordEmailCheck:", error);
+      return res.status(500).json({ status: "error", message: "Internal server error." });
     }
   },
+  
   ChangePassword: async (req,res) => {
     try {
       const {password,email} = req.body
