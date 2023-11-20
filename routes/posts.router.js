@@ -21,7 +21,4 @@ router.delete("/:id", postsController.delete)
 router.delete("/ImageDelete/:id/:key", postsController.ImageDelete)
 
 
-//Logic ทำ Update Post ให้ลบทีละรูปแล้วยืนยันไปทีละอันจะได้ง่าย ส่วนของใหม่ก็สร้างตามปกติ
-// หรือไม่ก็เอาชื่อเดิมของรูปมาอัพเดทแล้วโพส์ซ้ำไปเลย
-
 module.exports = router

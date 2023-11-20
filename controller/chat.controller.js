@@ -4,8 +4,8 @@ const chatController = {
     getChat : async (req,res) => {
         try {
             const { uid } = req.params
-            const result = await pool.query("CALL GetChat(?);",[uid])
-            res.json(result[0][0])
+            const [result] = await pool.query("CALL GetChat(?);",[uid])
+            res.json(result[0])
         } catch (error) {
             console.log(error)
             res.json({

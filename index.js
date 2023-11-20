@@ -34,11 +34,13 @@ const postsRouter = require("./routes/posts.router");
 const authRouter = require("./routes/auth.router");
 const chatRouter = require("./routes/chat.router");
 const userRouter = require("./routes/user.router");
+const offerRouter = require("./routes/offer.router");
 
 app.use("/posts", postsRouter);
 app.use("/auth", authRouter);
 app.use("/chat", chatRouter);
 app.use("/user", userRouter);
+app.use("/offer", offerRouter);
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");

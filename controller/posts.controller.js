@@ -122,19 +122,41 @@ const postsController = {
   getByUid: async (req, res) => {
     try {
       const { id } = req.params;
-      const result = await pool.query("CALL PostToCard(?);", [id]);
-      data = result[0];
-      for (let image of data[0]) {
-        image.imageUrl = await getSignedUrl(
-          s3Client,
-          new GetObjectCommand({
-            Bucket: bucketName,
-            Key: image.image_key,
-          }),
-          { expiresIn: 36000 }
-        );
-      }
-      res.json(data[0]);
+      const [result] = await pool.query("CALL PostToCard(?);", [id]);
+      const data = await Promise.all(result[0].map(async (item) => {
+        const imageIds = item.image_ids.split(",");
+        const imageKeys = item.image_keys.split(",");
+  
+        const images = await Promise.all(imageKeys.map(async (image_key, index) => {
+          return {
+            image_id: imageIds[index],
+            image_key: image_key,
+            imageUrl: await getSignedUrl(
+              s3Client,
+              new GetObjectCommand({
+                Bucket: bucketName,
+                Key: image_key,
+              }),
+              { expiresIn: 36000 }
+            ),
+          };
+        }));
+  
+        return {
+          item_id: item.item_id,
+          user_id:item.user_id,
+          name:item.name,
+          profile:item.profile,
+          item_name: item.item_name,
+          description: item.description,
+          condition: item.condition,
+          category_id: item.category_id,
+          create_at: item.create_at,
+          status: item.status,
+          images: images,
+        };
+      }));
+      res.json(data);
     } catch (error) {
       console.log(error);
       res.json({
@@ -372,6 +394,7 @@ const postsController = {
           i.condition,
           i.category_id,
           i.create_at,
+          i.status,
         GROUP_CONCAT(img.image_id) AS image_ids,
         GROUP_CONCAT(img.image_key) AS image_keys
         FROM
@@ -417,10 +440,10 @@ const postsController = {
           condition: item.condition,
           category_id: item.category_id,
           create_at: item.create_at,
+          status: item.status,
           images: images,
         };
       }));
-  
       res.json(data);
     } catch (error) {
       console.log(error);
