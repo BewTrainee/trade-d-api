@@ -49,6 +49,7 @@ const offerController = {
           const {
             user_offer_id,
             to_item_id,
+            item_name,
             offer_to_userId,
             condition,
             offer_message,
@@ -58,8 +59,8 @@ const offerController = {
       
           await pool.query(
             `INSERT INTO chats (sender_id,receiver_id,message_text,timestamp,type) 
-            values (?, ?, ?, ?, 'text')`,
-            [user_offer_id, offer_to_userId, offer_message, create_at]
+            values (?, ?, ?, 'ฉันสนใจ ${item_name} ของคุณ ${offer_message}', 'text')`,
+            [user_offer_id, offer_to_userId, create_at]
           );
       
           const uploadedImageUrls = [];
