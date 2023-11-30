@@ -59,7 +59,7 @@ const offerController = {
       
           await pool.query(
             `INSERT INTO chats (sender_id,receiver_id,message_text,timestamp,type) 
-            values (?, ?, ?, 'ฉันสนใจ ${item_name} ของคุณ ${offer_message}', 'text')`,
+            values (?, ?,'ฉันสนใจ ${item_name} ของคุณ ${offer_message}', ?, 'text')`,
             [user_offer_id, offer_to_userId, create_at]
           );
       
