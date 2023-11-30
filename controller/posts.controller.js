@@ -8,6 +8,7 @@ const sharp = require("sharp");
 const crypto = require("crypto");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const pool = require("../database/index");
+const { table } = require("console");
 
 const region = "ap-southeast-1";
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -166,14 +167,13 @@ const postsController = {
   },
   create: async (req, res) => {
     try {
-      const { uid, name, description, condition, category_id } = req.body;
+      const { user_id, name, description, condition, category_id } = req.body;
+      // console.log(req.body)
       const images = req.files; // Extract uploaded images from the request
       const create_at = new Date();
-      // Insert post data into the posts table
-      // INSERT INTO `main_app`.`items` (`user_id`, `name`, `description`, `category_id`, `condition`, `create_at`) VALUES ('1', 'PostManItems', 'Postman is an API platform for building and using APIs. Postman simplifies each step of the API lifecycle and streamlines collaboration so you can create better APIs—faster.', '1', 'Find Me a Better One', '2023-11-10 21:28:43');
       const [postRows] = await pool.query(
         "INSERT INTO items (`user_id`, `name`, `description`, `category_id`, `condition`, `create_at`) VALUES (?, ?, ?, ?, ?, ?)",
-        [uid, name, description, category_id, condition, create_at]
+        [user_id, name, description, category_id, condition, create_at]
       );
 
       const postId = postRows.insertId;
@@ -182,7 +182,7 @@ const postsController = {
 
       for (const image of images) {
         const fileBuffer = await sharp(image.buffer)
-          .resize({ height: 1920, width: 1080, fit: "contain" })
+          .resize({ height: 640, width: 320, fit: "contain" })
           .toBuffer();
 
         const fileName = generateFileName();
@@ -221,7 +221,7 @@ const postsController = {
       const images = req.files;
       for (const image of images) {
         const fileBuffer = await sharp(image.buffer)
-          .resize({ height: 1920, width: 1080, fit: "contain" })
+          .resize({ height: 640, width: 320, fit: "contain" })
           .toBuffer();
 
         const fileName = generateFileName();
@@ -260,12 +260,13 @@ const postsController = {
       const info = req.body;
       // console.log(info.name)
       const sql =
-        "UPDATE items SET name = ?, description = ?, category_id = ?, `condition` = ?  where item_id = ?";
+        "UPDATE items SET name = ?, description = ?, category_id = ?, `condition` = ?, `status` = ?   where item_id = ?";
       const value = [
         info.name,
         info.description,
         info.category_id,
         info.condition,
+        info.status,
         info.item_id,
       ];
       const [rows, fields] = await pool.query(sql, value);
@@ -342,7 +343,7 @@ const postsController = {
       const categoryId = result[0][0]?.category_id;
       // console.log(categoryId)
       const category = await pool.query(
-        `select * from categories where category_id=?`,
+        `select * from categories where category_id= ?`,
         [categoryId]
       );
       const images = await pool.query(
@@ -350,6 +351,8 @@ const postsController = {
         [id]
       );
       data = result[0];
+      //  hour = ms * (24 * days)
+      let hour = 36000 * (24 * 720)
       for (let image of images[0]) {
         image.imageUrl = await getSignedUrl(
           s3Client,
@@ -357,7 +360,7 @@ const postsController = {
             Bucket: bucketName,
             Key: image.image_key,
           }),
-          { expiresIn: 36000 }
+          { expiresIn: hour }
         );
       }
       res.json({
@@ -403,6 +406,7 @@ const postsController = {
           images AS img ON i.item_id = img.item_id
         LEFT JOIN
           users AS u ON i.user_id = u.user_id
+        Where i.status = "Pending"
         GROUP BY
           i.item_id
         ORDER BY

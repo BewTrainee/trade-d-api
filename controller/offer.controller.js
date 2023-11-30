@@ -66,7 +66,7 @@ const offerController = {
       
           for (const image of images) {
             const fileBuffer = await sharp(image.buffer)
-              .resize({ height: 1920, width: 1080, fit: "contain" })
+              .resize({ height: 640, width: 320, fit: "contain" })
               .toBuffer();
       
             const fileName = generateFileName();
